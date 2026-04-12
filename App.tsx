@@ -999,9 +999,9 @@ const WhyChooseUs = () => {
 
 const Testimonials = () => {
   const images = [
-    "https://i.postimg.cc/SNzfXGw5/image.png",
-    "https://i.postimg.cc/yYSyJTwG/image2.png",
-    "https://i.postimg.cc/WbJwD7QH/image3.png"
+    "https://i.postimg.cc/nL6KrpYt/testimonial-1-BC33h-Mdv.png",
+    "https://i.postimg.cc/DztQ0ndT/testimonial-2-Dx-EKw0g-K.png",
+    "https://i.postimg.cc/5tHqf6v0/testimonial-3-s-Mjxsr-QA.png"
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
