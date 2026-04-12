@@ -36,6 +36,7 @@ import {
   Smile,
   Download
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Testimonial, FAQItem, Bonus, Plan } from './types';
 
 // ScrollReveal Component
@@ -46,7 +47,7 @@ const Reveal: React.FC<{
   delay?: number,
   threshold?: number,
   style?: React.CSSProperties
-}> = ({ 
+}> = React.memo(({ 
   children, 
   className = "", 
   variant = "up", 
@@ -90,7 +91,9 @@ const Reveal: React.FC<{
       {children}
     </div>
   );
-};
+});
+
+Reveal.displayName = 'Reveal';
 
 // Global scroll handler for CTAs
 const handleCTAClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -118,7 +121,98 @@ const getCheckoutUrl = (baseUrl: string) => {
 };
 
 // Components
-const Navbar = () => {
+const UpsellModal = React.memo(({ isOpen, onClose, onAccept, onDecline }: { 
+  isOpen: boolean, 
+  onClose: () => void, 
+  onAccept: () => void, 
+  onDecline: () => void 
+}) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="bg-white w-full max-w-md rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 relative shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
+          >
+            <button 
+              onClick={onClose}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="flex flex-col items-center">
+              <div className="bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full font-bold text-xs flex items-center gap-2 mb-6 uppercase tracking-wider">
+                <Star className="w-3 h-3 fill-yellow-700" /> Oportunidade Única
+              </div>
+
+              <h3 className="text-3xl font-black text-slate-800 text-center leading-tight mb-4">
+                Leve o <span className="text-sky-500">Dobro de Conteúdo</span>
+              </h3>
+
+              <p className="text-slate-600 text-center mb-8 px-4">
+                Por apenas <span className="font-bold text-slate-800">R$ 5,00 a mais</span>, você migra para o Plano Completo e garante:
+              </p>
+
+              <div className="w-full bg-slate-50 rounded-3xl p-6 mb-8 space-y-4">
+                <div className="flex gap-3 items-center">
+                  <Check className="w-5 h-5 text-green-500 shrink-0" />
+                  <span className="text-slate-700 font-bold text-sm">+100 Experimentos</span>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <Check className="w-5 h-5 text-green-500 shrink-0" />
+                  <span className="text-slate-700 font-bold text-sm">5 Bônus Exclusivos inclusos</span>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <Check className="w-5 h-5 text-green-500 shrink-0" />
+                  <span className="text-slate-700 font-bold text-sm">Acesso Vitalício e Atualizações</span>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <Check className="w-5 h-5 text-green-500 shrink-0" />
+                  <span className="text-slate-700 font-bold text-sm">Garantia de 30 Dias</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 mb-8">
+                <span className="text-slate-400 font-bold text-lg line-through">de R$ 27,00</span>
+                <span className="text-sky-500 text-4xl font-black tracking-tighter">R$ 14,90</span>
+              </div>
+
+              <button 
+                onClick={onAccept}
+                className="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-black text-xl shadow-lg transition-all transform active:scale-95 uppercase tracking-tight mb-4"
+              >
+                Quero o Pacote Completo
+              </button>
+
+              <button 
+                onClick={onDecline}
+                className="text-slate-400 font-medium underline underline-offset-4 hover:text-slate-600 transition-colors text-sm"
+              >
+                Não obrigado, vou ficar apenas com o básico
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+});
+
+UpsellModal.displayName = 'UpsellModal';
+
+const Navbar = React.memo(() => {
   const [dateStr, setDateStr] = useState('');
 
   useEffect(() => {
@@ -130,14 +224,16 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="bg-purple-600 text-white py-2 text-center text-[13px] sm:text-base font-bold relative z-50 shadow-md flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-4 tracking-tight sm:tracking-normal">
+    <nav className="bg-red-600 text-white py-3 sm:py-4 text-center text-sm sm:text-lg font-bold relative z-50 shadow-md flex items-center justify-center gap-2 sm:gap-3 px-2 sm:px-6 tracking-tight sm:tracking-normal">
       <Star className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400 shrink-0" />
       <span className="whitespace-nowrap">
         Desconto somente HOJE nesta página {dateStr || '14/03/2026'}
       </span>
     </nav>
   );
-};
+});
+
+Navbar.displayName = 'Navbar';
 
 const WistiaPlayer = ({ mediaId, aspect = '1.7777777777777777', paddingTop = '56.25%' }: { mediaId: string, aspect?: string, paddingTop?: string }) => {
   const [loadVideo, setLoadVideo] = useState(false);
@@ -212,7 +308,7 @@ const WistiaPlayer = ({ mediaId, aspect = '1.7777777777777777', paddingTop = '56
   );
 };
 
-const SocialProof = () => {
+const SocialProof = React.memo(() => {
   const [visible, setVisible] = useState(false);
   const [currentName, setCurrentName] = useState('');
   
@@ -276,9 +372,11 @@ const SocialProof = () => {
       </div>
     </div>
   );
-};
+});
 
-const Hero = () => (
+SocialProof.displayName = 'SocialProof';
+
+const Hero = React.memo(() => (
   <header id="hero" data-section="hero" className="relative bg-white pt-16 pb-20 px-4 overflow-hidden">
     {/* Decorative background elements to simulate the illustration */}
     <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
@@ -290,13 +388,13 @@ const Hero = () => (
       
       <Reveal delay={200}>
         <h1 className="text-3xl md:text-5xl lg:text-[54px] font-bold text-black leading-[1.15] max-w-4xl mx-auto">
-          +100 Experimentos Científicos Prontos para Fazer com Seus Filhos em Casa
+          <span className="text-purple-600">+100 Experimentos Científicos</span> para Tirar Seu Filho das <span className="text-purple-600">Telas</span> e Fazer Ele <span className="text-purple-600">Aprender Brincando</span>
         </h1>
       </Reveal>
 
       <Reveal delay={300}>
         <p className="text-lg md:text-2xl text-slate-600 max-w-3xl font-medium">
-          Com passo a passo simples, materiais fáceis e resultados que encantam as crianças
+          Com passo a passo simples, materiais que você já tem em casa e resultados surpreendentes
         </p>
       </Reveal>
 
@@ -340,7 +438,7 @@ const Hero = () => (
               role="button"
               tabIndex={1}
               aria-label="Quero Garantir o meu acesso agora"
-              className="px-8 md:px-12 py-4 md:py-5 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white rounded-full text-lg md:text-xl font-bold border border-white/30 transition-all text-center uppercase tracking-wide w-full md:w-auto animate-pulse-button shadow-xl shadow-green-100"
+              className="px-8 md:px-12 py-4 md:py-5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-full text-lg md:text-xl font-bold border border-white/30 transition-all text-center uppercase tracking-wide w-full md:w-auto animate-pulse-button shadow-xl shadow-green-100"
             >
               Quero Garantir o meu acesso agora
             </a>
@@ -384,9 +482,11 @@ const Hero = () => (
       </div>
     </div>
   </header>
-);
+));
 
-const WhatYouGet = () => {
+Hero.displayName = 'Hero';
+
+const WhatYouGet = React.memo(() => {
   const items = [
     {
       icon: <Beaker className="w-6 h-6 text-white" />,
@@ -402,11 +502,6 @@ const WhatYouGet = () => {
       icon: <ClipboardList className="w-6 h-6 text-white" />,
       title: "Lista de Materiais para Cada Experimento",
       description: "Você sabe exatamente o que usar — com itens simples que já tem em casa"
-    },
-    {
-      icon: <Users className="w-6 h-6 text-white" />,
-      title: "Para Todas as Idades",
-      description: "Experimentos adaptáveis para crianças de diferentes idades e níveis"
     },
     {
       icon: <Infinity className="w-6 h-6 text-white" />,
@@ -441,7 +536,7 @@ const WhatYouGet = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {items.map((item, index) => (
             <Reveal key={index} delay={index * 100} variant="up">
-              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 flex items-start gap-5 border border-white/50 h-full">
+              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-500 flex items-start gap-5 border border-white/50 h-full">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 shrink-0 flex items-center justify-center shadow-lg shadow-purple-200">
                   {item.icon}
                 </div>
@@ -462,7 +557,7 @@ const WhatYouGet = () => {
             data-location="what-you-get"
             role="button"
             aria-label="GARANTIR MATERIAL AGORA"
-            className="inline-flex items-center justify-center px-8 md:px-12 py-5 rounded-full text-xl font-black bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white transition-all transform active:scale-95 uppercase tracking-widest shadow-xl shadow-green-100 animate-pulse-soft text-center"
+            className="inline-flex items-center justify-center px-8 md:px-12 py-5 rounded-full text-xl font-black bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white transition-all transform active:scale-95 uppercase tracking-widest shadow-xl shadow-green-100 animate-pulse-soft text-center"
           >
             GARANTIR MATERIAL AGORA
           </a>
@@ -470,9 +565,11 @@ const WhatYouGet = () => {
       </div>
     </section>
   );
-};
+});
 
-const Stats = () => (
+WhatYouGet.displayName = 'WhatYouGet';
+
+const Stats = React.memo(() => (
   <section id="stats" data-section="stats" className="bg-white py-12 border-y border-slate-100 overflow-hidden">
     <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
       {[
@@ -490,9 +587,11 @@ const Stats = () => (
       ))}
     </div>
   </section>
-);
+));
 
-const IdealFor = () => (
+Stats.displayName = 'Stats';
+
+const IdealFor = React.memo(() => (
   <section id="ideal-for" data-section="ideal-for" className="py-24 px-4 bg-slate-50 overflow-hidden">
     <div className="max-w-6xl mx-auto">
       <Reveal className="text-center mb-16">
@@ -553,16 +652,18 @@ const IdealFor = () => (
           data-location="ideal-for"
           role="button"
           aria-label="Sim, esse kit é para mim"
-          className="px-10 py-5 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white rounded-2xl text-xl font-bold shadow-xl transition-all transform hover:-translate-y-1 text-center animate-pulse-soft uppercase"
+          className="px-10 py-5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-2xl text-xl font-bold shadow-xl transition-all transform hover:-translate-y-1 text-center animate-pulse-soft uppercase"
         >
           Sim, esse kit é para mim
         </a>
       </Reveal>
     </div>
   </section>
-);
+));
 
-const ProblemSection = () => (
+IdealFor.displayName = 'IdealFor';
+
+const ProblemSection = React.memo(() => (
   <section className="py-20 px-4 bg-[#f8f8fc] relative">
     <div className="max-w-4xl mx-auto text-center">
       <Reveal variant="down">
@@ -589,55 +690,48 @@ const ProblemSection = () => (
         </p>
       </Reveal>
 
-      <Reveal variant="up" delay={300}>
-        <a 
-          href="#pricing"
-          onClick={handleCTAClick}
-          className="inline-flex items-center justify-center w-full md:w-auto px-8 py-4 rounded-xl text-lg md:text-xl font-bold bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white transition-all transform hover:scale-105 active:scale-95 shadow-lg uppercase"
-        >
-          🔥 QUERO FAZER MEUS FILHOS SE APAIXONAREM PELA CIÊNCIA!
-        </a>
-      </Reveal>
     </div>
   </section>
-);
+));
 
-const Bonuses = () => {
+ProblemSection.displayName = 'ProblemSection';
+
+const Bonuses = React.memo(() => {
   const bonuses: Bonus[] = [
     { 
       id: "1", 
       title: "100 Truques de Mágica para Crianças", 
       value: "R$ 27,00", 
       description: "Guia prático com mágicas simples para encantar, divertir e surpreender em casa.", 
-      image: "https://i.postimg.cc/s2GgRw1G/Nffkg.jpg" 
+      image: "https://i.postimg.cc/DzsPxnWr/Chat-GPT-Image-12-de-abr-de-2026-11-38-58.png" 
     },
     { 
       id: "2", 
       title: "Guia de Brincadeiras em Família", 
       value: "R$ 37,00", 
       description: "Sugestões de brincadeiras para fortalecer o vínculo e criar momentos especiais juntos.", 
-      image: "https://i.postimg.cc/SKYxpDjM/IAt-IV.jpg" 
+      image: "https://i.postimg.cc/JhJ5pMyZ/Chat-GPT-Image-12-de-abr-de-2026-11-39-06.png" 
     },
     { 
       id: "3", 
       title: "50 Atividades Criativas (Offline)", 
       value: "R$ 27,00", 
       description: "Atividades variadas para estimular a criatividade e manter as crianças longe das telas.", 
-      image: "https://i.postimg.cc/HL8kCBj7/k-Wxh-L.jpg" 
+      image: "https://i.postimg.cc/KYLD0xKn/Chat-GPT-Image-12-de-abr-de-2026-11-39-11.png" 
     },
     { 
       id: "4", 
       title: "Mini Guia: Como Despertar o Interesse das Crianças", 
       value: "R$ 19,00", 
       description: "Dicas simples para engajar seu filho e tornar o aprendizado mais divertido.", 
-      image: "https://i.postimg.cc/g0L2PNrX/OXSb-J.jpg" 
+      image: "https://i.postimg.cc/cJYBF0Kf/Chat-GPT-Image-12-de-abr-de-2026-11-39-17.png" 
     },
     { 
       id: "5", 
       title: "Pack de Piadas e Curiosidades Científicas", 
       value: "R$ 37,00", 
       description: "Conteúdo leve e divertido para aprender rindo e despertar ainda mais interesse.", 
-      image: "https://i.postimg.cc/g0L2PNrn/71v4H.jpg" 
+      image: "https://i.postimg.cc/pL3BQpdX/Chat-GPT-Image-12-de-abr-de-2026-11-39-22.png" 
     }
   ];
 
@@ -667,48 +761,43 @@ const Bonuses = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-16 max-w-6xl mx-auto">
           {bonuses.map((bonus, idx) => (
             <Reveal key={bonus.id} delay={idx * 150} variant="up" className="h-full">
-              <div className="group relative bg-white p-5 rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col h-full border border-slate-100">
+              <div className="group relative bg-white rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col h-full border border-slate-100 overflow-hidden">
                 {/* Book Image */}
-                <div className="relative mb-5 flex justify-center">
-                  <div className="w-full max-w-[140px] aspect-[4/5] relative group-hover:scale-105 transition-transform duration-500">
-                    <img 
-                      src={bonus.image} 
-                      alt={bonus.title} 
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover rounded-xl shadow-md"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-black/10"></div>
+                <div className="relative">
+                  <img 
+                    src={bonus.image} 
+                    alt={bonus.title} 
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-auto block group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 ring-1 ring-inset ring-black/10"></div>
+                </div>
+                
+                <div className="p-6 flex flex-col items-center text-center h-full">
+                  {/* Title */}
+                  <h4 className="text-lg font-bold text-slate-800 mb-4 leading-tight min-h-[3rem] flex items-center">
+                    {bonus.title}
+                  </h4>
+                  
+                  {/* Value */}
+                  <div className="mb-6">
+                    <span className="text-slate-400 font-bold text-sm uppercase tracking-wider mr-1">
+                      VALOR:
+                    </span>
+                    <span className="text-red-500 font-bold text-lg line-through">
+                      {bonus.value}
+                    </span>
+                  </div>
+
+                  {/* Gratis Button */}
+                  <div className="w-full mt-auto">
+                    <div className="w-full py-3 bg-[#22c55e] text-white rounded-xl font-black text-lg shadow-[0_4px_0_rgb(21,128,61)] active:shadow-none active:translate-y-[4px] transition-all uppercase tracking-widest">
+                      GRÁTIS
+                    </div>
                   </div>
                 </div>
-                
-                {/* Label Row */}
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-[#1e3a8a] font-bold text-sm uppercase tracking-tight">
-                    BÔNUS {bonus.id}
-                  </span>
-                  <span className="text-purple-600 font-bold text-[10px] uppercase tracking-wider">
-                    HOJE: GRÁTIS
-                  </span>
-                </div>
-
-                {/* Title */}
-                <h4 className="text-base font-bold text-black mb-1.5 leading-tight">
-                  {bonus.title}
-                </h4>
-                
-                {/* Value */}
-                <div className="mb-2">
-                  <span className="text-red-500 font-medium text-sm line-through opacity-80">
-                    Valor: {bonus.value}
-                  </span>
-                </div>
-
-                {/* Description */}
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  {bonus.description}
-                </p>
               </div>
             </Reveal>
           ))}
@@ -722,7 +811,7 @@ const Bonuses = () => {
             data-location="bonuses"
             role="button"
             aria-label="Quero os bônus"
-            className="inline-block px-12 py-5 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white rounded-2xl text-xl font-bold shadow-xl transition-all transform hover:-translate-y-1 text-center animate-pulse-soft uppercase"
+            className="inline-block px-12 py-5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-2xl text-xl font-bold shadow-xl transition-all transform hover:-translate-y-1 text-center animate-pulse-soft uppercase"
            >
               Quero os bônus
            </a>
@@ -730,10 +819,12 @@ const Bonuses = () => {
       </div>
     </section>
   );
-};
+});
+
+Bonuses.displayName = 'Bonuses';
 
 
-const Pricing = () => {
+const Pricing = React.memo(({ onBasicClick }: { onBasicClick: (e: React.MouseEvent) => void }) => {
   return (
     <section id="plans" data-section="pricing" className="py-24 px-4 bg-white scroll-mt-20 overflow-hidden text-slate-800">
       <div className="max-w-6xl mx-auto">
@@ -785,11 +876,12 @@ const Pricing = () => {
                 <div className="mt-auto w-full max-w-md mx-auto">
                   <a 
                     href={getCheckoutUrl("https://ggcheckout.app/checkout/v5/qSu608sppl7jnOFUgYuj")}
+                    onClick={onBasicClick}
                     data-track="cta-click"
                     data-location="pricing-basic"
                     role="button"
                     aria-label="Garantir Plano Básico"
-                    className="flex items-center justify-center w-full py-4 rounded-xl text-lg font-bold bg-purple-600 hover:bg-purple-700 text-white transition-all transform active:scale-95 shadow-lg"
+                    className="flex items-center justify-center w-full py-4 rounded-xl text-lg font-bold bg-green-600 hover:bg-green-700 text-white transition-all transform active:scale-95 shadow-lg"
                   >
                     <div className="flex items-center justify-center gap-2 px-4">
                       <Download className="w-5 h-5 shrink-0" />
@@ -869,7 +961,7 @@ const Pricing = () => {
                     data-location="pricing-premium"
                     role="button"
                     aria-label="Garantir Plano Premium"
-                    className="flex items-center justify-center w-full py-4 rounded-xl text-lg font-bold bg-purple-600 hover:bg-purple-700 text-white transition-all transform active:scale-95 shadow-lg"
+                    className="flex items-center justify-center w-full py-4 rounded-xl text-lg font-bold bg-green-600 hover:bg-green-700 text-white transition-all transform active:scale-95 shadow-lg"
                   >
                     <div className="flex items-center justify-center gap-2 px-4">
                       <Download className="w-5 h-5 shrink-0" />
@@ -884,9 +976,11 @@ const Pricing = () => {
       </div>
     </section>
   );
-};
+});
 
-const Guarantee = () => (
+Pricing.displayName = 'Pricing';
+
+const Guarantee = React.memo(() => (
   <section className="py-8 px-4 bg-white overflow-hidden">
     <Reveal variant="scale" threshold={0.3}>
       <div className="max-w-4xl mx-auto bg-gradient-to-br from-purple-50 to-white rounded-3xl p-6 md:p-8 border border-purple-100 shadow-2xl shadow-green-100/50 relative">
@@ -933,7 +1027,7 @@ const Guarantee = () => (
                 data-location="guarantee"
                 role="button"
                 aria-label="Garantir meu risco zero"
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white rounded-xl font-bold shadow-lg transition-transform hover:scale-105 flex items-center gap-2 uppercase text-sm"
+                className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-xl font-bold shadow-lg transition-transform hover:scale-105 flex items-center gap-2 uppercase text-sm"
                >
                  Garantir meu risco zero <ArrowRight size={18} />
                </a>
@@ -943,9 +1037,11 @@ const Guarantee = () => (
       </div>
     </Reveal>
   </section>
-);
+));
 
-const FAQ = () => {
+Guarantee.displayName = 'Guarantee';
+
+const FAQ = React.memo(() => {
   const faqs: FAQItem[] = [
     { question: "Preciso de materiais caros para fazer os experimentos?", answer: "Não! Todos os experimentos foram pensados com materiais simples e acessíveis que você provavelmente já tem em casa." },
     { question: "Para qual idade esse material é indicado?", answer: "O conteúdo é ideal para crianças de 4 a 12 anos, mas pode ser adaptado facilmente para diferentes idades." },
@@ -989,29 +1085,31 @@ const FAQ = () => {
       </div>
     </section>
   );
-};
+});
 
-const WhyChooseUs = () => {
+FAQ.displayName = 'FAQ';
+
+const WhyChooseUs = React.memo(() => {
   const reasons = [
     {
-      title: "Reduz o Tempo de Tela",
-      description: "Tire seus filhos do celular e videogame com atividades que prendem a atenção no mundo real.",
-      icon: <MonitorOff className="w-8 h-8 text-purple-600" />
+      title: "Substitui as Telas por Diversão Real",
+      description: "Seu filho troca o celular por atividades que realmente prendem a atenção e despertam curiosidade.",
+      icon: <span className="text-3xl">📴</span>
     },
     {
-      title: "Estimula a Inteligência",
-      description: "Desenvolve o raciocínio lógico, a curiosidade e o amor pelo aprendizado desde cedo.",
-      icon: <Brain className="w-8 h-8 text-purple-600" />
+      title: "Ensina Ciência de Forma Simples",
+      description: "Explicações fáceis e práticas que fazem seu filho aprender sem dificuldade.",
+      icon: <span className="text-3xl">🧠</span>
     },
     {
-      title: "Fortalece o Vínculo",
-      description: "Crie memórias inesquecíveis e passe tempo de qualidade rindo e aprendendo com seus filhos.",
-      icon: <Heart className="w-8 h-8 text-purple-600" />
+      title: "Cria Momentos em Família",
+      description: "Você participa, se diverte e cria memórias enquanto seu filho aprende.",
+      icon: <span className="text-3xl">💛</span>
     },
     {
-      title: "Aprendizado Divertido",
-      description: "Eles nem vão perceber que estão estudando ciência, física e química de tão divertido que é!",
-      icon: <Smile className="w-8 h-8 text-purple-600" />
+      title: "Funciona na Prática (Sem Complicação)",
+      description: "Experimentos rápidos, com materiais simples e resultados que encantam logo na primeira vez.",
+      icon: <span className="text-3xl">⚡</span>
     }
   ];
 
@@ -1019,7 +1117,9 @@ const WhyChooseUs = () => {
     <section id="why-choose-us" data-section="why-choose-us" className="py-24 px-4 bg-white relative overflow-hidden">
       <div className="max-w-6xl mx-auto relative z-10">
         <Reveal className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-black mb-4 uppercase">Por Que Escolher Nosso Material?</h2>
+          <h2 className="text-2xl md:text-4xl font-bold text-black mb-4 uppercase">
+            COMO ESSE MATERIAL VAI <br className="md:hidden" /> TRANSFORMAR A ROTINA DO SEU FILHO
+          </h2>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {reasons.map((reason, idx) => (
@@ -1037,9 +1137,11 @@ const WhyChooseUs = () => {
       </div>
     </section>
   );
-};
+});
 
-const Testimonials = () => {
+WhyChooseUs.displayName = 'WhyChooseUs';
+
+const Testimonials = React.memo(() => {
   const images = [
     "https://i.postimg.cc/nL6KrpYt/testimonial-1-BC33h-Mdv.png",
     "https://i.postimg.cc/DztQ0ndT/testimonial-2-Dx-EKw0g-K.png",
@@ -1126,12 +1228,28 @@ const Testimonials = () => {
             ))}
           </div>
         </div>
+
+        <Reveal delay={400} variant="scale" className="flex justify-center mt-12">
+          <a 
+            href="#plans" 
+            onClick={handleCTAClick}
+            data-track="cta-click"
+            data-location="testimonials"
+            role="button"
+            aria-label="QUERO GARANTIR MEU ACESSO AGORA"
+            className="px-10 py-5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-2xl text-xl font-bold shadow-xl transition-all transform hover:-translate-y-1 text-center animate-pulse-soft uppercase"
+          >
+            QUERO GARANTIR MEU ACESSO AGORA
+          </a>
+        </Reveal>
       </div>
     </section>
   );
-};
+});
 
-const Footer = () => (
+Testimonials.displayName = 'Testimonials';
+
+const Footer = React.memo(() => (
   <footer className="bg-slate-900 text-white py-16 px-4">
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
       <Reveal variant="left">
@@ -1152,9 +1270,26 @@ const Footer = () => (
       </Reveal>
     </div>
   </footer>
-);
+));
+
+Footer.displayName = 'Footer';
 
 const App: React.FC = () => {
+  const [isUpsellModalOpen, setIsUpsellModalOpen] = useState(false);
+
+  const handleBasicClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsUpsellModalOpen(true);
+  };
+
+  const handleUpsellAccept = () => {
+    window.location.href = getCheckoutUrl("https://ggcheckout.app/checkout/v5/kgKU64Vo2IaXnaEqSebR");
+  };
+
+  const handleUpsellDecline = () => {
+    window.location.href = getCheckoutUrl("https://ggcheckout.app/checkout/v5/qSu608sppl7jnOFUgYuj");
+  };
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -1166,7 +1301,7 @@ const App: React.FC = () => {
         <WhyChooseUs />
         <Testimonials />
         <Bonuses />
-        <Pricing />
+        <Pricing onBasicClick={handleBasicClick} />
         <Guarantee />
         <FAQ />
         
@@ -1191,7 +1326,7 @@ const App: React.FC = () => {
                 data-location="bottom"
                 role="button"
                 aria-label="QUERO TRANSFORMAR MEU FILHO AGORA"
-                className="inline-block px-12 py-6 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white rounded-2xl text-2xl font-bold shadow-2xl transition-all transform hover:scale-105 active:scale-95 animate-pulse-soft uppercase"
+                className="inline-block px-12 py-6 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-2xl text-2xl font-bold shadow-2xl transition-all transform hover:scale-105 active:scale-95 animate-pulse-soft uppercase"
               >
                 QUERO TRANSFORMAR MEU FILHO AGORA
               </a>
@@ -1202,6 +1337,13 @@ const App: React.FC = () => {
 
       <Footer />
       <SocialProof />
+
+      <UpsellModal 
+        isOpen={isUpsellModalOpen} 
+        onClose={() => setIsUpsellModalOpen(false)}
+        onAccept={handleUpsellAccept}
+        onDecline={handleUpsellDecline}
+      />
     </div>
   );
 };
