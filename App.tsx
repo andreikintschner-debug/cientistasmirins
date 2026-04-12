@@ -51,7 +51,7 @@ const Reveal: React.FC<{
   className = "", 
   variant = "up", 
   delay = 0,
-  threshold = 0.1,
+  threshold = 0.05,
   style = {}
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -140,23 +140,43 @@ const Navbar = () => {
 };
 
 const WistiaPlayer = ({ mediaId, aspect = '1.7777777777777777', paddingTop = '56.25%' }: { mediaId: string, aspect?: string, paddingTop?: string }) => {
+  const [loadVideo, setLoadVideo] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setLoadVideo(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.1, rootMargin: '200px' });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!loadVideo) return;
+
     const script1 = document.createElement('script');
     script1.src = 'https://fast.wistia.com/player.js';
     script1.async = true;
-    script1.setAttribute('fetchpriority', 'high');
+    script1.setAttribute('fetchpriority', 'low');
     document.body.appendChild(script1);
 
     const script2 = document.createElement('script');
     script2.src = `https://fast.wistia.com/embed/${mediaId}.js`;
     script2.async = true;
     script2.type = 'module';
-    script2.setAttribute('fetchpriority', 'high');
+    script2.setAttribute('fetchpriority', 'low');
     document.body.appendChild(script2);
-  }, [mediaId]);
+  }, [loadVideo, mediaId]);
 
   return (
-    <div className="w-full relative rounded-2xl overflow-hidden shadow-2xl z-10 border-4 border-slate-200">
+    <div ref={containerRef} className="w-full relative rounded-2xl overflow-hidden shadow-2xl z-10 border-4 border-slate-200">
       <style dangerouslySetInnerHTML={{
         __html: `
           wistia-player[media-id='${mediaId}']:not(:defined) { 
@@ -167,7 +187,27 @@ const WistiaPlayer = ({ mediaId, aspect = '1.7777777777777777', paddingTop = '56
           }
         `
       }} />
-      {React.createElement('wistia-player', { 'media-id': mediaId, aspect: aspect })}
+      {loadVideo ? React.createElement('wistia-player', { 'media-id': mediaId, aspect: aspect }) : (
+        <div 
+          className="w-full cursor-pointer group"
+          style={{ paddingTop }}
+          onClick={() => setLoadVideo(true)}
+        >
+          <img 
+            src={`https://fast.wistia.com/embed/medias/${mediaId}/swatch`}
+            alt="Video preview"
+            className="absolute inset-0 w-full h-full object-cover blur-sm group-hover:blur-none transition-all duration-500"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-16 h-16 bg-purple-600/90 rounded-full flex items-center justify-center text-white shadow-xl group-hover:scale-110 transition-transform">
+              <Zap className="w-8 h-8 fill-white" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -209,8 +249,8 @@ const SocialProof = () => {
       timeoutId = setTimeout(showNotification, nextDelay);
     };
 
-    // Initial delay of 5 seconds
-    timeoutId = setTimeout(showNotification, 5000);
+    // Initial delay of 10 seconds to prioritize main content
+    timeoutId = setTimeout(showNotification, 10000);
 
     return () => {
       isMounted = false;
@@ -537,6 +577,8 @@ const ProblemSection = () => (
             src="https://i.postimg.cc/j2kmxL6F/kid-bored-screen-Db-R3yw-B8.png" 
             alt="Criança triste no tablet" 
             className="w-full max-w-md rounded-3xl shadow-sm"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </Reveal>
