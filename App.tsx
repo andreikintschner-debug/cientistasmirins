@@ -1129,13 +1129,13 @@ WhyChooseUs.displayName = 'WhyChooseUs';
 
 const Testimonials = React.memo(() => {
   const images = [
-    "https://i.postimg.cc/4xxWbVqv/6QYz0Au.jpg",
-    "https://i.postimg.cc/fTKH9B2g/testimonial-1-BC33h-Mdv.png",
-    "https://i.postimg.cc/BnnmcHkM/qdum-LZu.jpg",
-    "https://i.postimg.cc/jdX87Zg3/testimonial-2-Dx-EKw0g-K.png",
-    "https://i.postimg.cc/BnnmcHkB/t5oq7l-G.png",
-    "https://i.postimg.cc/sDcnhw6T/testimonial-3-s-Mjxsr-QA.png",
-    "https://i.postimg.cc/dVV5mrp5/Z6p-EGip.jpg"
+    "https://i.imgur.com/2g6AKgb.jpeg",
+    "https://i.imgur.com/Sz3pKu6.png",
+    "https://i.imgur.com/kP45N2y.jpeg",
+    "https://i.imgur.com/RbpOJRK.png",
+    "https://i.imgur.com/ojKM2ik.jpeg",
+    "https://i.imgur.com/sOUmMCM.png",
+    "https://i.imgur.com/ebDeV7q.png"
   ];
 
   // Double images for seamless loop
